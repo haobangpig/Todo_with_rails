@@ -7,7 +7,7 @@ class TodoItemsController < ApplicationController
   end
 
   def destroy
-    @todo_item = @todo_list.todo_items.find(params[:todo_list_id])
+    @todo_item = @todo_list.todo_items.find(params[:id])
     if @todo_item.destroy
       flash[:success] = 'Todo list item was deteted'
     else
