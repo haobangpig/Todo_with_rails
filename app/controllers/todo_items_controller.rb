@@ -1,24 +1,36 @@
 class TodoItemsController < ApplicationController
   before_action :set_todo_list
-  before_action :set_todo_item, only: [:destroy, :complete]
+  before_action :set_todo_item, only: [:destroy, :complete, :redo]
 
   def create
-    @todo_item = @todo_list.todo_items.create(todo_item_params)
+    @todo_item = @todo_list.todo_items.new(todo_item_params)
+    if @todo_item.save
+      msg = ["A new item has been created.", "Please finish it as possible as you can"]
+      flash[:notice] = msg.join(" ").html_safe
+    else
+      flash[:notice] = @todo_item.errors.full_messages.join("<br/>").html_safe
+    end
     redirect_to @todo_list
   end
 
   def destroy
     if @todo_item.destroy
-      flash[:success] = 'Todo list item was deteted'
+      redirect_to @todo_list, notice: "Todo list item was deteted"
     else
-      flash[:error] = 'Todo List item could not be deteted'
+      redirect_to @todo_list, notice: "Todo list item can't be deteted"
     end
-    redirect_to @todo_list
   end
 
   def complete
     @todo_item.update_attribute(:completed_at, Time.now)
-    redirect_to @todo_list, notice: "Todo item completed"
+    flash[:notice] = "'#{@todo_item.content}' has been completed! Good Job!"
+    redirect_to @todo_list
+  end
+
+  def redo
+    @todo_item.update_attribute(:completed_at, nil)
+    flash[:notice] ="'#{@todo_item.content}'has been reset! Try to do it harder!"
+    redirect_to @todo_list
   end
 
   private
